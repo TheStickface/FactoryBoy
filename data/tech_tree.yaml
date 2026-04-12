@@ -1,0 +1,24 @@
+# FactoryBoy tech tree
+# Tiers run in order. target_hours is the desired player time to complete
+# all research in this tier. science_packs lists total pack counts needed.
+
+tiers:
+  - name: "Automation Science"
+    target_hours: 3
+    science_packs:
+      automation-science-pack: 100
+    unlocks:
+      - iron-plate
+      - copper-plate
+      - iron-gear-wheel
+      - copper-cable
+      - automation-science-pack
+
+  - name: "Logistic Science"
+    target_hours: 8
+    science_packs:
+      automation-science-pack: 300
+      logistic-science-pack: 300
+    unlocks:
+      - electronic-circuit
+      - logistic-science-pack
