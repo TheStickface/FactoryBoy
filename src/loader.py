@@ -80,9 +80,10 @@ def _load_tech_tree(path: Path) -> list[Tier]:
     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
     tiers = []
     for data in (raw.get("tiers") or []):
+        target_hours = data.get("target_hours")
         tiers.append(Tier(
             name=data["name"],
-            target_hours=data.get("target_hours"),
+            target_hours=float(target_hours) if target_hours is not None else None,
             science_packs={k: int(v) for k, v in data["science_packs"].items()},
             unlocks=data.get("unlocks", []),
         ))
