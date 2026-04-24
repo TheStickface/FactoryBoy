@@ -109,3 +109,41 @@ recipes:
       logistic-science-pack: 1
     crafting_time: 6.0
     machine: assembler-1
+
+  # ── Space Age (Gleba) ─────────────────────────────────────────────────────
+  nutrients-from-bio:
+    ingredients:
+      biochamber: 1
+    products:
+      nutrients: 15
+    crafting_time: 5.0
+    machine: assembler-1
+    surface: gleba
+
+  biochamber:
+    ingredients:
+      nutrients: 10
+    products:
+      biochamber: 1
+    crafting_time: 10.0
+    machine: assembler-1
+    surface: gleba
+
+  agricultural-science-pack:
+    ingredients:
+      nutrients: 10
+      biochamber: 1
+    products:
+      agricultural-science-pack: 1
+    crafting_time: 12.0
+    machine: assembler-1
+    surface: gleba
+
+  decay-nutrients:
+    ingredients:
+      nutrients: 1
+    products:
+      spoilage: 1
+    crafting_time: 300.0
+    machine: assembler-1
+    surface: gleba

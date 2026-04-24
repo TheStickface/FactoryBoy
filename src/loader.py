@@ -13,6 +13,7 @@ class Recipe:
     products: dict[str, float]
     crafting_time: float
     machine: str
+    surface: str
 
 
 @dataclass
@@ -29,7 +30,9 @@ class Config:
     root_input_rate: float
     machine_speeds: dict[str, float]
     bottleneck_threshold: int
-    machine_budget: dict[str, int]
+    machine_budget: dict[str, dict[str, int]]
+    spoilage_multiplier: float
+    perishable_items: list[str]
     default_target_hours: dict[str, float]
     report_output: str
 
@@ -56,7 +59,12 @@ def _load_config(path: Path) -> Config:
         root_input_rate=float(raw["root_input_rate"]),
         machine_speeds={k: float(v) for k, v in raw["machine_speeds"].items()},
         bottleneck_threshold=int(raw["bottleneck_threshold"]),
-        machine_budget={k: int(v) for k, v in raw["machine_budget"].items()},
+        machine_budget={
+            surface: {k: int(v) for k, v in stage_budget.items()}
+            for surface, stage_budget in raw["machine_budget"].items()
+        },
+        spoilage_multiplier=float(raw.get("spoilage_multiplier", 1.0)),
+        perishable_items=raw.get("perishable_items", []),
         default_target_hours={k: float(v) for k, v in raw["default_target_hours"].items()},
         report_output=raw["report_output"],
     )
@@ -72,6 +80,7 @@ def _load_recipes(path: Path) -> dict[str, Recipe]:
             products={k: float(v) for k, v in data["products"].items()},
             crafting_time=float(data["crafting_time"]),
             machine=data["machine"],
+            surface=data.get("surface", "nauvis"),
         )
     return recipes
 

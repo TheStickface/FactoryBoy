@@ -15,32 +15,49 @@ class ThroughputMap:
 
 def solve(item: str, rate: float, graph: RecipeGraph, config: Config) -> ThroughputMap:
     """Compute throughput (units/second) required for every item in the chain
-    to produce `rate` units/second of `item`. Traces back to config.root_input."""
+    to produce `rate` units/second of `item`. Traces back to config.root_input.
+
+    Cycle detection uses a visited set to prevent infinite loops on circular
+    dependencies. The root input is excluded from visited tracking so demands
+    from multiple branches can still accumulate into it."""
     result = ThroughputMap()
-    _recurse(item, rate, graph, config.root_input, result, frozenset())
+    pending: dict[str, float] = {item: rate}
+    visited: set[str] = set()
+
+    while pending:
+        # Process the largest pending demand first for numerical stability
+        current_item = max(pending, key=pending.get)
+        current_rate = pending.pop(current_item)
+
+        # Cycle detection: skip non-root items already fully processed.
+        # The root input is intentionally excluded so demands from multiple
+        # branches can accumulate into it even after first processing.
+        if current_item != config.root_input and current_item in visited:
+            continue
+        if current_item != config.root_input:
+            visited.add(current_item)
+
+        # Apply spoilage markup if item perishes
+        if current_item in config.perishable_items:
+            current_rate *= config.spoilage_multiplier
+
+        result.add(current_item, current_rate)
+
+        if current_item == config.root_input:
+            continue
+
+        recipe = graph.recipe_for(current_item)
+        if recipe is None:
+            continue
+
+        output_qty = recipe.products.get(current_item, 0.0)
+        if output_qty <= 0:
+            continue
+
+        for ingredient, qty in recipe.ingredients.items():
+            ingredient_rate = current_rate * (qty / output_qty)
+            if ingredient_rate < 1e-6:
+                continue
+            pending[ingredient] = pending.get(ingredient, 0.0) + ingredient_rate
+
     return result
-
-
-def _recurse(
-    item: str,
-    rate: float,
-    graph: RecipeGraph,
-    root_input: str,
-    result: ThroughputMap,
-    visited: frozenset,
-) -> None:
-    result.add(item, rate)
-
-    if item == root_input or item in visited:
-        return
-
-    recipe = graph.recipe_for(item)
-    if recipe is None:
-        return
-
-    output_qty = recipe.products[item]
-    new_visited = visited | {item}
-
-    for ingredient, qty in recipe.ingredients.items():
-        ingredient_rate = rate * (qty / output_qty)
-        _recurse(ingredient, ingredient_rate, graph, root_input, result, new_visited)

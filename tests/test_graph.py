@@ -36,6 +36,7 @@ def test_last_recipe_wins_for_duplicate_product(simple_recipes):
         products={"iron-plate": 1.0},
         crafting_time=1.0,
         machine="assembler-1",
+        surface="nauvis",
     )
     recipes = {**simple_recipes, "iron-plate-alt": extra}
     graph = RecipeGraph.build(recipes)

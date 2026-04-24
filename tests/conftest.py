@@ -12,6 +12,7 @@ def simple_recipes():
             products={"iron-ore": 1.0},
             crafting_time=10.0,
             machine="chemical-plant",
+            surface="nauvis",
         ),
         "copper-ore": Recipe(
             name="copper-ore",
@@ -19,6 +20,7 @@ def simple_recipes():
             products={"copper-ore": 1.0},
             crafting_time=10.0,
             machine="chemical-plant",
+            surface="nauvis",
         ),
         "iron-plate": Recipe(
             name="iron-plate",
@@ -26,6 +28,7 @@ def simple_recipes():
             products={"iron-plate": 1.0},
             crafting_time=3.2,
             machine="stone-furnace",
+            surface="nauvis",
         ),
         "copper-plate": Recipe(
             name="copper-plate",
@@ -33,6 +36,7 @@ def simple_recipes():
             products={"copper-plate": 1.0},
             crafting_time=3.2,
             machine="stone-furnace",
+            surface="nauvis",
         ),
         "automation-science-pack": Recipe(
             name="automation-science-pack",
@@ -40,6 +44,7 @@ def simple_recipes():
             products={"automation-science-pack": 1.0},
             crafting_time=5.0,
             machine="assembler-1",
+            surface="nauvis",
         ),
     }
 
@@ -51,7 +56,9 @@ def simple_config():
         root_input_rate=1000.0,
         machine_speeds={"assembler-1": 0.5, "stone-furnace": 1.0, "chemical-plant": 1.0},
         bottleneck_threshold=20,
-        machine_budget={"early": 50, "mid": 200, "late": 800},
+        machine_budget={"nauvis": {"early": 50, "mid": 200, "late": 800}},
+        spoilage_multiplier=1.0,
+        perishable_items=[],
         default_target_hours={"early": 3.0, "mid": 9.0, "late": 20.0},
         report_output="reports/latest.html",
     )

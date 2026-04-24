@@ -21,7 +21,7 @@ def test_simulated_hours_exceeds_target_when_over_budget(simple_recipes, simple_
     # Use a tiny machine budget to force over-budget
     from dataclasses import replace
     from src.loader import GameData
-    tight_config = replace(simple_config, machine_budget={"early": 1, "mid": 1, "late": 1})
+    tight_config = replace(simple_config, machine_budget={"nauvis": {"early": 1, "mid": 1, "late": 1}})
     tier = Tier(
         name="Automation Science",
         target_hours=3.0,

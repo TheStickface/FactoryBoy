@@ -17,13 +17,36 @@ machine_speeds:
 # jumps by more than this many machines between consecutive tiers.
 bottleneck_threshold: 20
 
-# Maximum total machines a player reasonably has at each stage.
+# Maximum total machines a player reasonably has at each stage per surface.
 # If a tier requires more than the budget to hit its target pace,
 # simulated_hours is scaled up proportionally.
 machine_budget:
-  early: 50       # tiers 0-1
-  mid: 200        # tiers 2-4
-  late: 800       # tiers 5+
+  nauvis:
+    early: 50
+    mid: 200
+    late: 800
+  fulgora:
+    early: 20
+    mid: 100
+    late: 300
+  vulcanus:
+    early: 20
+    mid: 100
+    late: 300
+  gleba:
+    early: 20
+    mid: 100
+    late: 300
+  aquilo:
+    early: 10
+    mid: 50
+    late: 150
+
+# Spoilage configuration
+spoilage_multiplier: 1.05
+perishable_items:
+  - nutrients
+  - agricultural-science-pack
 
 # Fallback pacing when a tier doesn't specify target_hours.
 default_target_hours:

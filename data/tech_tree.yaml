@@ -22,3 +22,14 @@ tiers:
     unlocks:
       - electronic-circuit
       - logistic-science-pack
+
+  - name: "Agricultural Science"
+    target_hours: 15
+    science_packs:
+      automation-science-pack: 1500
+      logistic-science-pack: 1500
+      agricultural-science-pack: 1500
+    unlocks:
+      - biochamber
+      - nutrients
+      - agricultural-science-pack

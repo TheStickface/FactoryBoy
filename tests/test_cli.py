@@ -24,9 +24,10 @@ machine_speeds:
   stone-furnace: 1.0
 bottleneck_threshold: 20
 machine_budget:
-  early: 50
-  mid: 200
-  late: 800
+  nauvis:
+    early: 50
+    mid: 200
+    late: 800
 default_target_hours:
   early: 3
   mid: 9

@@ -41,15 +41,17 @@ def test_solve_accumulates_shared_ingredients():
     # Two products share the same intermediate — demands should sum
     from src.loader import Recipe, Config
     recipes = {
-        "a": Recipe("a", {"root": 1.0}, {"a": 1.0}, 1.0, "assembler-1"),
-        "b": Recipe("b", {"root": 1.0}, {"b": 1.0}, 1.0, "assembler-1"),
-        "ab": Recipe("ab", {"a": 1.0, "b": 1.0}, {"ab": 1.0}, 1.0, "assembler-1"),
+        "a": Recipe("a", {"root": 1.0}, {"a": 1.0}, 1.0, "assembler-1", "nauvis"),
+        "b": Recipe("b", {"root": 1.0}, {"b": 1.0}, 1.0, "assembler-1", "nauvis"),
+        "ab": Recipe("ab", {"a": 1.0, "b": 1.0}, {"ab": 1.0}, 1.0, "assembler-1", "nauvis"),
     }
     config = Config(
         root_input="root", root_input_rate=1000.0,
         machine_speeds={"assembler-1": 0.5},
         bottleneck_threshold=20,
-        machine_budget={"early": 50, "mid": 200, "late": 800},
+        machine_budget={"nauvis": {"early": 50, "mid": 200, "late": 800}},
+        spoilage_multiplier=1.0,
+        perishable_items=[],
         default_target_hours={"early": 3.0, "mid": 9.0, "late": 20.0},
         report_output="reports/latest.html",
     )
@@ -63,14 +65,16 @@ def test_solve_handles_cycle_without_infinite_loop():
     from src.loader import Recipe, Config
     # a needs b, b needs a — pathological cycle
     recipes = {
-        "a": Recipe("a", {"b": 1.0}, {"a": 1.0}, 1.0, "assembler-1"),
-        "b": Recipe("b", {"a": 1.0}, {"b": 1.0}, 1.0, "assembler-1"),
+        "a": Recipe("a", {"b": 1.0}, {"a": 1.0}, 1.0, "assembler-1", "nauvis"),
+        "b": Recipe("b", {"a": 1.0}, {"b": 1.0}, 1.0, "assembler-1", "nauvis"),
     }
     config = Config(
         root_input="root", root_input_rate=1000.0,
         machine_speeds={"assembler-1": 0.5},
         bottleneck_threshold=20,
-        machine_budget={"early": 50, "mid": 200, "late": 800},
+        machine_budget={"nauvis": {"early": 50, "mid": 200, "late": 800}},
+        spoilage_multiplier=1.0,
+        perishable_items=[],
         default_target_hours={"early": 3.0, "mid": 9.0, "late": 20.0},
         report_output="reports/latest.html",
     )

@@ -42,7 +42,7 @@ def run_simulation(data: GameData) -> list[TierResult]:
 
         machine_counts = _compute_machine_counts(combined, graph, data.config)
         total_machines = sum(machine_counts.values())
-        simulated_hours = _compute_simulated_hours(target_hours, total_machines, stage, data.config)
+        simulated_hours = _compute_simulated_hours(target_hours, machine_counts, stage, data.config, graph)
         bottlenecks = _detect_bottlenecks(machine_counts, prev_counts, data.config.bottleneck_threshold)
 
         results.append(TierResult(
@@ -86,11 +86,22 @@ def _compute_machine_counts(throughput: ThroughputMap, graph: RecipeGraph, confi
     return counts
 
 
-def _compute_simulated_hours(target_hours: float, total_machines: int, stage: str, config: Config) -> float:
-    budget = config.machine_budget[stage]
-    if total_machines <= budget:
-        return target_hours
-    return target_hours * (total_machines / budget)
+def _compute_simulated_hours(target_hours: float, machine_counts: dict[str, int], stage: str, config: Config, graph: RecipeGraph) -> float:
+    surface_totals: dict[str, int] = {}
+    for recipe_name, count in machine_counts.items():
+        recipe = graph.recipes.get(recipe_name)
+        if recipe is None:
+            continue
+        surface = recipe.surface
+        surface_totals[surface] = surface_totals.get(surface, 0) + count
+
+    worst_multiplier = 1.0
+    for surface, total in surface_totals.items():
+        budget = config.machine_budget.get(surface, {}).get(stage, 1000000)
+        if total > budget:
+            worst_multiplier = max(worst_multiplier, total / budget)
+
+    return target_hours * worst_multiplier
 
 
 def _detect_bottlenecks(
