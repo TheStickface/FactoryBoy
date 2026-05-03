@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(pytest:*)",
+      "Bash(python:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m 'feat: data loader with YAML parsing and dataclasses:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git -C \"/c/Dev/Factorio/FactoryBoy\" log --oneline -10)",
+      "Bash(gh auth:*)",
+      "Bash(gh repo:*)"
+    ]
+  }
+}

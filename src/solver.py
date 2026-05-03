@@ -1,6 +1,7 @@
 # src/solver.py
 from __future__ import annotations
 from dataclasses import dataclass, field
+from typing import Optional
 from src.loader import Config
 from src.graph import RecipeGraph
 
@@ -13,13 +14,16 @@ class ThroughputMap:
         self.rates[item] = self.rates.get(item, 0.0) + rate
 
 
-def solve(item: str, rate: float, graph: RecipeGraph, config: Config) -> ThroughputMap:
+def solve(item: str, rate: float, graph: RecipeGraph, config: Config, surface: Optional[str] = None) -> ThroughputMap:
     """Compute throughput (units/second) required for every item in the chain
     to produce `rate` units/second of `item`. Traces back to config.root_input.
 
+    If surface is specified, recipe selection prefers recipes available on that
+    surface. Falls back to any-surface recipes if no match exists.
+
     Cycle detection uses a visited set to prevent infinite loops on circular
-    dependencies. The root input is excluded from visited tracking so demands
-    from multiple branches can still accumulate into it."""
+    dependencies. The root input is intentionally excluded so demands from multiple
+    branches can accumulate into it even after first processing."""
     result = ThroughputMap()
     pending: dict[str, float] = {item: rate}
     visited: set[str] = set()
@@ -46,7 +50,10 @@ def solve(item: str, rate: float, graph: RecipeGraph, config: Config) -> Through
         if current_item == config.root_input:
             continue
 
-        recipe = graph.recipe_for(current_item)
+        # Surface-aware recipe selection: try target surface first, then fallback
+        recipe = graph.recipe_for(current_item, surface=surface)
+        if recipe is None:
+            recipe = graph.recipe_for(current_item)  # fallback to any surface
         if recipe is None:
             continue
 

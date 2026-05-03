@@ -84,17 +84,17 @@ The solver performs a backward traversal from the target item to `root_input`:
 
 ## Current State (2026-05-03)
 
-- **Branch**: `master`, commit `a47191b`
-- **Tests**: 45/45 passing (28 unit + 17 integration)
-- **Schema**: Multi-surface aware (surface field on Recipe, nested machine_budget)
-- **Last addition**: Comprehensive integration tests covering full YAML → loader → engine → reporter pipeline
+- **Branch**: `master`
+- **Tests**: 51/51 passing (34 unit + 17 integration, all passing as of 2026-05-03)
+- **Schema**: Multi-surface aware with surface-aware recipe selection
+- **Last addition**: Surface-aware recipe selection — solver prefers recipes on target surface with fallback
 
 ## Pending Work / Next Steps
 
 1. **~Integration tests — DONE~** — End-to-end YAML → loader → engine → reporter pipeline ✅
-2. **Surface-aware recipe selection** — Solver should select recipes based on target surface, not just product name
+2. **~Surface-aware recipe selection — DONE~** — Solver selects recipes by target surface, falls back to any-surface ✅
 3. **Perishable/spoilage data** — Add perishable items to `data/recipes.yaml` and test spoilage multiplier
-4. **Multi-surface simulation** — Engine should track machine budgets per-surface instead of globally
+4. **~Multi-surface simulation — DONE~** — Engine tracks machine budgets per-surface with surface_machine_counts ✅
 5. **Tech tree dependencies** — Loader supports `unlocks` but engine doesn't yet model prerequisite gating
 6. **Data expansion** — Populate `data/recipes.yaml` with full Factorio recipe database
 

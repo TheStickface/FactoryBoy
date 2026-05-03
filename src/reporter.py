@@ -135,21 +135,23 @@ def _bottleneck_table(results: list[TierResult]) -> str:
         for b in result.bottlenecks:
             flag = "⚠" if b.delta >= 20 else ""
             row_class = ' class="bottleneck"' if flag else ""
+            surface_display = b.surface if b.surface else "(unknown)"
             rows.append(
                 f'<tr{row_class}>'
                 f"<td>{result.tier_name}</td>"
                 f"<td>{b.recipe_name}</td>"
+                f"<td>{surface_display}</td>"
                 f"<td>{b.machines_required}</td>"
                 f"<td>+{b.delta}</td>"
                 f"<td>{flag}</td>"
                 f"</tr>"
             )
     if not rows:
-        rows.append('<tr><td colspan="5">No bottlenecks detected.</td></tr>')
+        rows.append('<tr><td colspan="6">No bottlenecks detected.</td></tr>')
     header = (
         "<table>"
         "<thead><tr>"
-        "<th>Tier</th><th>Recipe</th><th>Machines Required</th>"
+        "<th>Tier</th><th>Recipe</th><th>Surface</th><th>Machines Required</th>"
         "<th>Delta from Previous</th><th>Flag</th>"
         "</tr></thead><tbody>"
     )

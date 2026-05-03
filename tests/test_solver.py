@@ -62,8 +62,8 @@ def test_solve_accumulates_shared_ingredients():
 
 
 def test_solve_handles_cycle_without_infinite_loop():
-    from src.loader import Recipe, Config
     # a needs b, b needs a — pathological cycle
+    from src.loader import Recipe, Config
     recipes = {
         "a": Recipe("a", {"b": 1.0}, {"a": 1.0}, 1.0, "assembler-1", "nauvis"),
         "b": Recipe("b", {"a": 1.0}, {"b": 1.0}, 1.0, "assembler-1", "nauvis"),
@@ -82,3 +82,94 @@ def test_solve_handles_cycle_without_infinite_loop():
     # Must terminate without recursion error
     result = solve("a", 1.0, graph, config)
     assert "a" in result.rates
+
+
+# ── Surface-aware solver tests ───────────────────────────────────────────────
+
+
+def test_solve_uses_surface_recipe_when_available():
+    """When surface=gleba, solver should pick the gleba recipe for iron-plate."""
+    from src.loader import Recipe, Config
+    recipes = {
+        "iron-plate-nauvis": Recipe(
+            name="iron-plate-nauvis",
+            ingredients={"iron-ore": 2.0},
+            products={"iron-plate": 1.0},
+            crafting_time=4.0,
+            machine="stone-furnace",
+            surface="nauvis",
+        ),
+        "iron-plate-gleba": Recipe(
+            name="iron-plate-gleba",
+            ingredients={"scrap": 1.0},
+            products={"iron-plate": 1.0},
+            crafting_time=2.0,
+            machine="assembler-1",
+            surface="gleba",
+        ),
+    }
+    config = Config(
+        root_input="scrap", root_input_rate=1000.0,
+        machine_speeds={"assembler-1": 0.5, "stone-furnace": 1.0},
+        bottleneck_threshold=20,
+        machine_budget={"nauvis": {"early": 50, "mid": 200, "late": 800}, "gleba": {"early": 50, "mid": 200, "late": 800}},
+        spoilage_multiplier=1.0,
+        perishable_items=[],
+        default_target_hours={"early": 3.0, "mid": 9.0, "late": 20.0},
+        report_output="reports/latest.html",
+    )
+    graph = RecipeGraph.build(recipes)
+
+    # With surface=gleba: should use gleba recipe (scrap ingredient)
+    result = solve("iron-plate", 1.0, graph, config, surface="gleba")
+    assert "scrap" in result.rates
+    assert result.rates["scrap"] == pytest.approx(1.0)
+    assert "iron-ore" not in result.rates
+
+    # With surface=nauvis: should use nauvis recipe (iron-ore ingredient)
+    config2 = Config(
+        root_input="iron-ore", root_input_rate=1000.0,
+        machine_speeds={"assembler-1": 0.5, "stone-furnace": 1.0},
+        bottleneck_threshold=20,
+        machine_budget={"nauvis": {"early": 50, "mid": 200, "late": 800}, "gleba": {"early": 50, "mid": 200, "late": 800}},
+        spoilage_multiplier=1.0,
+        perishable_items=[],
+        default_target_hours={"early": 3.0, "mid": 9.0, "late": 20.0},
+        report_output="reports/latest.html",
+    )
+    result2 = solve("iron-plate", 1.0, graph, config2, surface="nauvis")
+    assert "iron-ore" in result2.rates
+    assert result2.rates["iron-ore"] == pytest.approx(2.0)
+    assert "scrap" not in result2.rates
+
+
+def test_solve_falls_back_to_any_surface_when_target_not_available():
+    """If target surface has no recipe, solver should fall back to any-surface recipe."""
+    from src.loader import Recipe, Config
+    recipes = {
+        "iron-plate-nauvis": Recipe(
+            name="iron-plate-nauvis",
+            ingredients={"iron-ore": 2.0},
+            products={"iron-plate": 1.0},
+            crafting_time=4.0,
+            machine="stone-furnace",
+            surface="nauvis",
+        ),
+    }
+    config = Config(
+        root_input="iron-ore", root_input_rate=1000.0,
+        machine_speeds={"stone-furnace": 1.0},
+        bottleneck_threshold=20,
+        machine_budget={"nauvis": {"early": 50, "mid": 200, "late": 800}},
+        spoilage_multiplier=1.0,
+        perishable_items=[],
+        default_target_hours={"early": 3.0, "mid": 9.0, "late": 20.0},
+        report_output="reports/latest.html",
+    )
+    graph = RecipeGraph.build(recipes)
+
+    # Request gleba (no recipe there) — should fall back to nauvis recipe
+    result = solve("iron-plate", 1.0, graph, config, surface="gleba")
+    assert "iron-plate" in result.rates
+    assert "iron-ore" in result.rates
+    assert result.rates["iron-ore"] == pytest.approx(2.0)
