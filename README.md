@@ -11,7 +11,7 @@ src/graph.py        — RecipeGraph: indexes recipes by product for fast lookup
 src/solver.py       — solve(): backward traversal from target item to root_input
 src/engine.py       — run_simulation(): solver → machine counts → budget check → bottlenecks
 src/reporter.py     — generate_report(): HTML + Plotly charts from simulation results
-tests/              — pytest suite (28 tests, all passing as of 2026-04-23)
+tests/              — pytest suite (45 tests: 28 unit + 17 integration, all passing as of 2026-05-03)
 data/               — YAML data files (config.yaml, recipes.yaml, tech_tree.yaml)
 reports/            — generated HTML report output
 ```
@@ -82,16 +82,16 @@ The solver performs a backward traversal from the target item to `root_input`:
 5. If over budget, scale simulated_hours upward proportionally
 6. Detect bottlenecks by comparing machine count deltas between consecutive tiers
 
-## Current State (2026-04-23)
+## Current State (2026-05-03)
 
-- **Branch**: `master`, commit `1150240`
-- **Tests**: 28/28 passing
+- **Branch**: `master`, commit `a47191b`
+- **Tests**: 45/45 passing (28 unit + 17 integration)
 - **Schema**: Multi-surface aware (surface field on Recipe, nested machine_budget)
-- **Last fix**: Cycle detection in solver + test alignment with new schema
+- **Last addition**: Comprehensive integration tests covering full YAML → loader → engine → reporter pipeline
 
 ## Pending Work / Next Steps
 
-1. **Integration tests** — End-to-end YAML → loader → engine → reporter pipeline
+1. **~Integration tests — DONE~** — End-to-end YAML → loader → engine → reporter pipeline ✅
 2. **Surface-aware recipe selection** — Solver should select recipes based on target surface, not just product name
 3. **Perishable/spoilage data** — Add perishable items to `data/recipes.yaml` and test spoilage multiplier
 4. **Multi-surface simulation** — Engine should track machine budgets per-surface instead of globally
